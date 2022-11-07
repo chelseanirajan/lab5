@@ -1,84 +1,73 @@
 window.onload = function () {
   "use strict";
-  // console.log(ANIMATIONS["DIVE"]);
-  let setInt;
-  let def = "BLANK";
-  const animArray = ANIMATIONS[def].split("=====");
   let frame = 0;
-  let timeSpeed = 250;
-  document.getElementById("start").addEventListener("click", function () {
-    // for(const x of )
+  let timer = null;
+  let size = document.getElementById("fontsize").value;
+  let turbo = 250;
 
-    function display() {
-      if (animArray.length === frame) {
-        frame = 0;
-      }
-      document.getElementById("text-area").innerHTML = animArray[frame];
-      frame++;
+  document.getElementById("start").onclick = function () {
+    document.getElementById("start").disabled =
+      !document.getElementById("start").disabled;
+    document.getElementById("stop").disabled =
+      !document.getElementById("stop").disabled;
+    document.getElementById("animation").disabled =
+      !document.getElementById("animation").disabled;
+    timer = setInterval(display, turbo);
+  };
+
+  document.getElementById("stop").onclick = function () {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
     }
+    display("idle");
+    document.getElementById("start").disabled =
+      !document.getElementById("start").disabled;
+    document.getElementById("stop").disabled =
+      !document.getElementById("stop").disabled;
+    document.getElementById("animation").disabled =
+      !document.getElementById("animation").disabled;
+  };
 
-    // document.getElementById("stop").disabled = false;
-    setInt = setInterval(display, timeSpeed);
+  document.getElementById("animation").onchange = function () {
+    frame = 0;
+    display("idle");
+  };
 
-    // alert("hello");
-  });
+  document.getElementById("fontsize").onchange = function () {
+    size = document.getElementById("fontsize").value;
+    document.getElementById("text-area").className = size;
+    resetInterval();
+  };
 
-  document.getElementById("stop").addEventListener("click", function () {
-    clearInterval(setInt);
-    document.getElementById("stop").disabled = true;
-  });
+  document.getElementById("turbo").onchange = function () {
+    turbo = document.getElementById("turbo").checked ? 50 : 250;
+    resetInterval();
+  };
 
-  document.getElementById("animation").addEventListener("change", (e) => {
-    // document.getElementById("text-area").innerText = e.target.value;
-    def = e.target.value;
-    const animArray = ANIMATIONS[def].split("=====");
+  function display(state) {
+    let txtarea = document.getElementById("text-area");
 
-    function display() {
-      if (animArray.length === frame) {
-        frame = 0;
-      }
-      document.getElementById("text-area").innerHTML = animArray[frame];
-      frame++;
-    }
-
-    document.getElementById("stop").disabled = false;
-    setInt = setInterval(display, timeSpeed);
-    // /console.log(e.target.value);
-  });
-
-  document.getElementById("fontsize").addEventListener("change", (e) => {
-    // document.getElementById("text-area").innerText = e.target.value;
-    let fontSize = e.target.value;
-    let font = 12;
-    switch (fontSize) {
-      case "Tiny":
-        font = 7;
-        break;
-      case "Small":
-        font = 10;
-        break;
-      case "Medium":
-        font = 12;
-        break;
-      case "Large":
-        font = 16;
-        break;
-      case "Extra Large":
-        font = 24;
-        break;
-      case "XXL":
-        font = 32;
-        break;
-    }
-
-    document.getElementById("text-area").style.fontSize = font + "pt";
-  });
-  document.getElementById("turbo").addEventListener("change", (e) => {
-    console.log(e.target.checked);
-    if (e.target.checked) {
-      timeSpeed = 50;
+    if (state === "idle") {
+      txtarea.value = ANIMATIONS[document.getElementById("animation").value];
     } else {
-      timeSpeed = 250;
+      let parts =
+        ANIMATIONS[document.getElementById("animation").value].split("=====");
+
+      if (parts.length === frame) {
+        frame = 0;
+      }
+
+      txtarea.value = parts[frame];
     }
-  });
+
+    frame++;
+  }
+
+  function resetInterval() {
+    if (timer) {
+      clearInterval(timer);
+      timer = setInterval(display, turbo);
+    }
+  }
 };
